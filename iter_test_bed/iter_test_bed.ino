@@ -1,6 +1,7 @@
 #include "HX711.h"  
 #include "Wire.h"
 #include "LiquidCrystal_I2C.h"
+#include "A4988.h"
 
 //define some useful words
 #define MOTOR_STEPS 200
@@ -74,7 +75,7 @@ void setup() {
 }
 
 void loop() {
-  stepper_1.rotate(-100)
+  stepper_1.rotate(-100);
 
   for (int i = 0; i < 500; i++) {
   units_1 += 0.1 * (scale_1.read() - units_1);
