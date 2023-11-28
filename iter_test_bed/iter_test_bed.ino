@@ -12,20 +12,23 @@
 #define DT_R 10
 #define SCK_R 11     
 //button pin
-#define BUTTON  2
+#define BUTTON A3
 //step motor driver pins
-#define STEP_1 3
-#define DIR_1 4
-#define SLP_1 5
+#define STEP_1 7
+#define DIR_1 8
+#define EN_1 9
+#define STEP_2 4
+#define DIR_2 5
+#define EN_2 6
 // initiate classes
 BasicStepperDriver stepper_1(MOTOR_STEPS, DIR_1, STEP_1);
-BasicStepperDriver stepper_2(MOTOR_STEPS, DIR_1, STEP_1);
+BasicStepperDriver stepper_2(MOTOR_STEPS, DIR_2, STEP_2);
 HX711 scale_L;
 HX711 scale_R;                                                    
 LiquidCrystal_I2C lcd(0x27,16,2);
 //vars
-float calibration_factor_L = -14.15;
-float calibration_factor_R = -14.15;                                         
+float calibration_factor_L = 2.53;
+float calibration_factor_R = -0.08;                                         
 float units;                                                  
 float ounces; 
 int buttonState = 0;
@@ -48,6 +51,7 @@ void calibrate_1() {
 }
 
 void setup() {   
+  Serial.begin(9600);
   // initialize and calibrate scales                                    
   scale_L.begin(DT_L, SCK_L);
   scale_L.set_scale();
@@ -58,6 +62,7 @@ void setup() {
   scale_R.tare();
   scale_R.set_scale(calibration_factor_R);
   // initialize lcd
+  lcd.init(); 
   lcd.backlight();
   // initialize stepper motors
   stepper_1.begin(RPM, MICROSTEPS);
@@ -74,30 +79,31 @@ void loop() {
   }
   units = units / 10;                                         
   ounces = units * 0.035274;
-  lcd.setCursor(0,0);                                 
-  lcd.print(ounces);                                            
+  //lcd.setCursor(0,0);                                 
+  Serial.print(ounces);                                            
   //loop scale read R
   for (int i = 0; i < 10; i ++) {                             
     units = + scale_R.get_units(), 10;                          
   }
   units = units / 10;                                         
   ounces = units * 0.035274;
-  lcd.setCursor(1,0);                                 
-  lcd.print(ounces);
+  //lcd.setCursor(0, 1);                               
+  //lcd.print(ounces);
+  delay(200);
   //main movement operation
-  stepper_1.rotate(-100);
-  delay(1000);
-  stepper_1.rotate(-80);
-  delay(1000);
-  stepper_1.rotate(-60);
-  delay(1000);
-  stepper_1.rotate(-22);
-  delay(1000);
-  stepper_1.rotate(-100);
-  delay(1000);
-  isCalibrated = false;
-  calibrate();
-  delay(1000);                                                               
+  //stepper_1.rotate(-100);
+  //delay(1000);
+  //stepper_1.rotate(-80);
+  //delay(1000);
+  //stepper_1.rotate(-60);
+  //delay(1000);
+  //stepper_1.rotate(-22);
+  //delay(1000);
+  //stepper_1.rotate(-100);
+  //delay(1000);
+  //isCalibrated = false;
+  //calibrate_1();
+  //delay(1000);                                                               
 }
 
 //possible modes for A4988 driver: 
