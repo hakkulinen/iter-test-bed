@@ -1,16 +1,16 @@
-#include "HX711.h"                                           
-#include "Wire.h" 
+#include "HX711.h"  
+#include "Wire.h"
 #include "LiquidCrystal_I2C.h"
-#include "A4988.h"
+
 //define some useful words
 #define MOTOR_STEPS 200
 #define RPM 2
 #define MICROSTEPS 16
 //stress gauge pins
-#define DT_L  12                                                
+#define DT_L 12
 #define SCK_L 13
 #define DT_R 10
-#define SCK_R 11     
+#define SCK_R 11
 //button pin
 #define BUTTON A3
 //step motor driver pins
@@ -20,20 +20,23 @@
 #define STEP_2 4
 #define DIR_2 5
 #define EN_2 6
-// initiate classes
+//initiate classes
 BasicStepperDriver stepper_1(MOTOR_STEPS, DIR_1, STEP_1);
 BasicStepperDriver stepper_2(MOTOR_STEPS, DIR_2, STEP_2);
-HX711 scale_L;
-HX711 scale_R;                                                    
-LiquidCrystal_I2C lcd(0x27,16,2);
-//vars
+HX711 scale_1;
+HX711 scale_2;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+//some more useful vars
 float calibration_factor_L = 2.53;
-float calibration_factor_R = -0.08;                                         
-float units;                                                  
-float ounces; 
+float calibration_factor_R = -0.08;
+float units_1 = 0.0;
+float units_2 = 0.0;
+float screen_var_1;
+float screen_var_2;
 int buttonState = 0;
-bool isCalibrated = false;                                                
+bool isCalibrated = false;
 
+//calibrates vertical stepper motor
 void calibrate_1() {
   if (isCalibrated == false) {
     for(int i = 1; i <= 200; i++) {
@@ -50,60 +53,62 @@ void calibrate_1() {
   }
 }
 
-void setup() {   
+void setup() {
   Serial.begin(9600);
-  // initialize and calibrate scales                                    
-  scale_L.begin(DT_L, SCK_L);
-  scale_L.set_scale();
-  scale_L.tare();
-  scale_L.set_scale(calibration_factor_L);
-  scale_R.begin(DT_R, SCK_R);  
-  scale_R.set_scale();   
-  scale_R.tare();
-  scale_R.set_scale(calibration_factor_R);
-  // initialize lcd
-  lcd.init(); 
+  scale_1.begin(DT_L, SCK_L);
+  scale_1.set_scale();
+  scale_1.tare();
+  scale_1.set_scale(calibration_factor_L);
+
+  scale_2.begin(DT_R, SCK_R);
+  scale_2.set_scale();
+  scale_2.tare();
+  scale_2.set_scale(calibration_factor_R);
+  lcd.init();
   lcd.backlight();
-  // initialize stepper motors
+
   stepper_1.begin(RPM, MICROSTEPS);
   stepper_2.begin(RPM, MICROSTEPS);
   pinMode(BUTTON, INPUT);
   calibrate_1();
-  delay(1000);
 }
 
-void loop() {     
-  //loop scale read L                           
-  for (int i = 0; i < 10; i ++) {                             
-    units = + scale_L.get_units(), 10;                          
+void loop() {
+  stepper_1.rotate(-100)
+
+  for (int i = 0; i < 500; i++) {
+  units_1 += 0.1 * (scale_1.read() - units_1);
+  screen_var_1 = units_1 / 13749.6216 - 31 -1.2 - 1.5;
+  units_2 += 0.3 * (scale_2.read() - units_2);
+  screen_var_2 = -(units_2 / 15937.8787 - 69.73);
+  lcd.setCursor(0, 0);
+  lcd.print(screen_var_1);
+  lcd.setCursor(0, 1);
+  lcd.print(screen_var_2);
   }
-  units = units / 10;                                         
-  ounces = units * 0.035274;
-  //lcd.setCursor(0,0);                                 
-  Serial.print(ounces);                                            
-  //loop scale read R
-  for (int i = 0; i < 10; i ++) {                             
-    units = + scale_R.get_units(), 10;                          
+  delay(2000);
+  stepper_1.rotate(-80);
+  delay(2000);
+  stepper_1.rotate(-60);
+  delay(2000);
+  stepper_1.rotate(-22);
+
+  for (int i = 0; i < 500; i++) {
+  units_1 += 0.1 * (scale_1.read() - units_1);
+  screen_var_1 = units_1 / 13749.6216 - 31 -1.2 - 1.5;
+  units_2 += 0.3 * (scale_2.read() - units_2);
+  screen_var_2 = -(units_2 / 15937.8787 - 69.73);
+  lcd.setCursor(0, 0);
+  lcd.print(screen_var_1);
+  lcd.setCursor(0, 1);
+  lcd.print(screen_var_2);
   }
-  units = units / 10;                                         
-  ounces = units * 0.035274;
-  //lcd.setCursor(0, 1);                               
-  //lcd.print(ounces);
-  delay(200);
-  //main movement operation
-  //stepper_1.rotate(-100);
-  //delay(1000);
-  //stepper_1.rotate(-80);
-  //delay(1000);
-  //stepper_1.rotate(-60);
-  //delay(1000);
-  //stepper_1.rotate(-22);
-  //delay(1000);
-  //stepper_1.rotate(-100);
-  //delay(1000);
-  //isCalibrated = false;
-  //calibrate_1();
-  //delay(1000);                                                               
+  delay(2000);
+  stepper_1.rotate(-100);
+  delay(2000);
+  isCalibrated = false;
+  calibrate_1();
+  delay(2000); 
 }
 
 //possible modes for A4988 driver: 
