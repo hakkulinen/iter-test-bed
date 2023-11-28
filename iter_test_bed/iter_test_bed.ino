@@ -1,4 +1,4 @@
-#include "HX711.h"  
+#include "HX711.h"
 #include "Wire.h"
 #include "LiquidCrystal_I2C.h"
 #include "A4988.h"
@@ -40,14 +40,14 @@ bool isCalibrated = false;
 //calibrates vertical stepper motor
 void calibrate_1() {
   if (isCalibrated == false) {
-    for(int i = 1; i <= 200; i++) {
-    stepper_1.rotate(-3);
-    buttonState = digitalRead(BUTTON);
-    if (buttonState == LOW) {
-      stepper_1.rotate(20);
-      delay(1000);
-      isCalibrated = true;
-      break;
+    for (int i = 1; i <= 200; i++) {
+      stepper_1.rotate(-3);
+      buttonState = digitalRead(BUTTON);
+      if (buttonState == LOW) {
+        stepper_1.rotate(20);
+        delay(1000);
+        isCalibrated = true;
+        break;
       }
       delay(50);
     }
@@ -78,14 +78,14 @@ void loop() {
   stepper_1.rotate(-100);
 
   for (int i = 0; i < 500; i++) {
-  units_1 += 0.1 * (scale_1.read() - units_1);
-  screen_var_1 = units_1 / 13749.6216 - 31 -1.2 - 1.5;
-  units_2 += 0.3 * (scale_2.read() - units_2);
-  screen_var_2 = -(units_2 / 15937.8787 - 69.73);
-  lcd.setCursor(0, 0);
-  lcd.print(screen_var_1);
-  lcd.setCursor(0, 1);
-  lcd.print(screen_var_2);
+    units_1 += 0.1 * (scale_1.read() - units_1);
+    screen_var_1 = units_1 / 13749.6216 - 31 - 1.2 - 1.5;
+    units_2 += 0.3 * (scale_2.read() - units_2);
+    screen_var_2 = -(units_2 / 15937.8787 - 69.73);
+    lcd.setCursor(0, 0);
+    lcd.print(screen_var_1);
+    lcd.setCursor(0, 1);
+    lcd.print(screen_var_2);
   }
   delay(2000);
   stepper_1.rotate(-80);
@@ -95,24 +95,24 @@ void loop() {
   stepper_1.rotate(-22);
 
   for (int i = 0; i < 500; i++) {
-  units_1 += 0.1 * (scale_1.read() - units_1);
-  screen_var_1 = units_1 / 13749.6216 - 31 -1.2 - 1.5;
-  units_2 += 0.3 * (scale_2.read() - units_2);
-  screen_var_2 = -(units_2 / 15937.8787 - 69.73);
-  lcd.setCursor(0, 0);
-  lcd.print(screen_var_1);
-  lcd.setCursor(0, 1);
-  lcd.print(screen_var_2);
+    units_1 += 0.1 * (scale_1.read() - units_1);
+    screen_var_1 = units_1 / 13749.6216 - 31 - 1.2 - 1.5;
+    units_2 += 0.3 * (scale_2.read() - units_2);
+    screen_var_2 = -(units_2 / 15937.8787 - 69.73);
+    lcd.setCursor(0, 0);
+    lcd.print(screen_var_1);
+    lcd.setCursor(0, 1);
+    lcd.print(screen_var_2);
   }
   delay(2000);
   stepper_1.rotate(-100);
   delay(2000);
   isCalibrated = false;
   calibrate_1();
-  delay(2000); 
+  delay(2000);
 }
 
-//possible modes for A4988 driver: 
+//possible modes for A4988 driver:
 // L L L FULL STEP 1
 // H L L HALF STEP 2
 // L H L QUARTER STEP 4
